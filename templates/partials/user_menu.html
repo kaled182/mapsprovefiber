@@ -1,0 +1,91 @@
+{% comment %}
+  User menu dropdown component.
+  Expected context: `request` with authenticated user.
+  Optional parameters:
+    - button_classes: custom classes for the trigger button.
+    - login_classes: custom classes for the fallback login link.
+{% endcomment %}
+
+{% if request.user.is_authenticated %}
+<div class="relative">
+  <button
+    type="button"
+    id="{{ button_id|default:'userMenuButton' }}"
+    class="{{ button_classes|default:'flex items-center gap-2 rounded-full bg-white/10 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-white' }}"
+  >
+    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
+      {{ request.user.username|first|upper }}
+    </span>
+    <span class="hidden sm:block text-white max-w-[120px] truncate">
+      {{ request.user.username }}
+    </span>
+    <svg
+      id="{{ arrow_id|default:'userMenuArrow' }}"
+      class="h-4 w-4 text-gray-300 transition-transform duration-200"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.177l3.71-3.945a.75.75 0 111.08 1.04l-4.25 4.52a.75.75 0 01-1.08 0l-4.25-4.52a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+
+  <div
+    id="{{ dropdown_id|default:'userMenuDropdown' }}"
+    class="hidden absolute right-0 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-1 text-sm z-50 divide-y divide-gray-100"
+  >
+    <div class="px-4 py-2">
+      <p class="font-medium text-gray-800 truncate">{{ request.user.username }}</p>
+      <p class="text-xs text-gray-500">
+        {{ request.user.email|default:"No email configured" }}
+      </p>
+    </div>
+
+    <div class="py-1">
+      <a
+        href="{% url 'admin:index' %}"
+        class="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors"
+        role="menuitem"
+      >
+        Admin Console
+      </a>
+      <a
+        href="{% url 'maps_view:dashboard_view' %}"
+        class="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors"
+        role="menuitem"
+      >
+        Map Home
+      </a>
+      <a
+        href="{% url 'setup_app:manage_environment' %}"
+        class="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors"
+        role="menuitem"
+      >
+        Environment Settings
+      </a>
+    </div>
+
+    <div class="py-1">
+      <form method="post" action="{% url 'logout' %}" class="m-0">
+        {% csrf_token %}
+        <button
+          type="submit"
+          class="flex items-center gap-2 w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+        >
+          Log out
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<a
+  href="/admin/login/"
+  class="{{ login_classes|default:'text-sm font-medium text-white hover:underline' }}"
+>
+  Sign in
+</a>
+{% endif %}
